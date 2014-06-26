@@ -50,7 +50,9 @@ def search(path)
             $entry = entry
             $current = {files: {}, repo: File.join('tree/master', entry)}
             $id = nil
-            require_relative file
+            Dir.chdir File.join(path, entry) do
+                require_relative file
+            end
             $data[$id] = $current
         end
     end
