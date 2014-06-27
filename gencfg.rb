@@ -21,8 +21,10 @@ def install(data = {})
         end
     end
 end
-def depend(*packages)
-    (($current[:dependencies] ||= []) << packages.map{|p| p.to_s}).flatten!
+def depend(packages = {})
+    packages.each do |k, v|
+        $current[:dependencies][k] = v
+    end
 end
 def description(desc)
     $current[:description] = desc
@@ -48,7 +50,7 @@ def search(path)
         if File.exist? file
             puts "Found package #{file}"
             $entry = entry
-            $current = {files: {}, repo: File.join('tree/master', entry)}
+            $current = {files: {}, repo: File.join('tree/master', entry), dependencies: {}}
             $id = nil
             Dir.chdir File.join(path, entry) do
                 require_relative file

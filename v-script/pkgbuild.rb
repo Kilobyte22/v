@@ -9,4 +9,4 @@ install Dir['lib/v-script/values/*.lua'] => '/lib/v-script/values'
 
 authors 'Kilobyte'
 
-depend :'oop-system'
+depend 'oop-system' => '/'
