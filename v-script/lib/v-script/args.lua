@@ -12,6 +12,10 @@ function Args:init(scope, args)
     self.values = {}
 end
 
+function Args:count()
+    return #self.sexps
+end
+
 function Args:arg(id)
     if self.autoeval then
         if not self.values[id] then

@@ -38,6 +38,8 @@ function Scope:resolveFunction(name)
 end
 
 function Scope:getFunction(name)
+    return self.env.namespace:getFunction(name)
+    --[[
     if name:sub(1, 1) == ':' then
         -- global functions only
         return self.env.namespace:getFunction(name) -- todo
@@ -50,7 +52,7 @@ function Scope:getFunction(name)
         return ns:getFunction(name)
     else
         return self:resolveFunction(name)
-    end
+    end]]
 end
 
 function Scope:callFunction(name, args)

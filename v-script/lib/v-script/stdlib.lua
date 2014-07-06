@@ -10,7 +10,7 @@ function stdlib.register(env)
         local argnames = args:arg(2)
         local callback = args:arg(3)
         scope.namespace:defineFunction(name:toString(), function (_, args)
-            local subScope = Scope.new(scope.env, scope)
+            local subScope = Scope.new(scope.env, scope, scope.namespace)
             for i = 1, #argnames.data do
                 local n = argnames.data[i]:eval(scope):toString()
                 rawset(subScope.lvars, n, args:arg(i))
@@ -38,6 +38,20 @@ function stdlib.register(env)
             last = args:arg(2):eval(subScope)
         end
         return last
+    end)
+
+    env.namespace:defineFunction('alias', function (scope, args)
+        scope.namespace:defineFunction(args:arg(1):toString(), scope.namespace:getFunction(args:arg(2):toString()))
+    end)
+
+    env.namespace:defineFunction('block', function (scope, args)
+        local count = args:count()
+        for i = 1, count - 1 do
+            args:arg(i)
+        end
+        if count > 0 then
+            return args:arg(count)
+        end
     end)
 
     env:eval([[

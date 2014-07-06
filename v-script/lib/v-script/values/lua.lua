@@ -5,7 +5,7 @@ local Nil = require('v-script/values/nil')
 local Lua = class('Values::Lua')
 
 function Lua:init(code)
-    self.func = loadstring('return function(scope) '..code..' end')()
+    self.func = load('return function(scope) '..code..' end')()
 end
 
 function Lua:eval(scope)
