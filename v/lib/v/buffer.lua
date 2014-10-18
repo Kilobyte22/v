@@ -13,29 +13,35 @@ end
 function Buffer:init(text, term, size, gpu)
     local lines = toLines(text)
     self.lines = lines
-    self.term = term
+    self._term = term
     self.lineNumbers = false
     self.scroll = {x = 0, y = 0 }
+    self.cursor = {x = 1, y = 1}
     self.size = size
     self.mode = nil
     self.prompt = ':'
     self.status = nil
     self.tempStatus = nil
     self.gpu = gpu
+    self.modified = false
+end
+
+function Buffer:getData()
+    return table.concat(self.lines, "\n")
 end
 
 function Buffer:update()
-    self.term.clear()
+    self._term.clear()
     self.lineNumberLength = 0
     if self.lineNumbers then
         for i = 1, self.size.h - 1 do
             if i + self.scroll.y > #self.lines then
                 break
             end
-            self.term.setCursor(1, i)
+            self._term.setCursor(1, i)
             local string = tostring(i + self.scroll.y)
             self.lineNumberLength = #string
-            self.term.write(string, false)
+            self._term.write(string, false)
         end
     end
 
@@ -56,8 +62,8 @@ function Buffer:drawLine(linenum)
         start = start + self.lineNumberLength + 1
     end
     if self.scroll.x < #self.lines[linenum] then
-        self.term.setCursor(start, linenum - self.scroll.y)
-        self.term.write(self.lines[linenum]:sub(self.scroll.x))
+        self._term.setCursor(start, linenum - self.scroll.y)
+        self._term.write(self.lines[linenum]:sub(self.scroll.x))
     end
 end
 
@@ -74,9 +80,33 @@ function Buffer:readLine()
 end
 
 function Buffer:setStatus(message)
-    self.term.setCursor(1, self.size.h)
-    self.term.clearLine()
-    self.term.write(message)
+    print(self.term)
+    self._term.setCursor(1, self.size.h)
+    self._term.clearLine()
+    self._term.write(message)
 end
+
+function Buffer:moveCursor(x, y)
+    local c = self.cursor
+    c.x = c.x + x
+    c.y = c.y + y
+    self:verifyCursor()
+end
+
+function Buffer:verifyCursor()
+    local c = self.cursor
+    c.x = math.max(c.x, 1)
+    c.y = math.max(c.y, 1)
+    c.y = math.max(c.y, #(self.lines))
+    c.x = math.min(c.x, #(self.lines[c.y + self.scroll.y]) + ((mode == 'insert') and 1 or 0))
+    self:updateCursor()
+end
+
+function Buffer:updateCursor()
+    local c = self.cursor
+    self._term.setCursor(c.x, c.y)
+end
+
+Buffer.setTempStatus = Buffer.setStatus
 
 return Buffer
