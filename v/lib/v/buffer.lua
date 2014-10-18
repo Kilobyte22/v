@@ -13,7 +13,7 @@ end
 function Buffer:init(text, term, size, gpu)
     local lines = toLines(text)
     self.lines = lines
-    self._term = term
+    self.term = term
     self.lineNumbers = false
     self.scroll = {x = 0, y = 0 }
     self.cursor = {x = 1, y = 1}
@@ -31,17 +31,17 @@ function Buffer:getData()
 end
 
 function Buffer:update()
-    self._term.clear()
+    self.term.clear()
     self.lineNumberLength = 0
     if self.lineNumbers then
         for i = 1, self.size.h - 1 do
             if i + self.scroll.y > #self.lines then
                 break
             end
-            self._term.setCursor(1, i)
+            self.term.setCursor(1, i)
             local string = tostring(i + self.scroll.y)
             self.lineNumberLength = #string
-            self._term.write(string, false)
+            self.term.write(string, false)
         end
     end
 
@@ -62,8 +62,8 @@ function Buffer:drawLine(linenum)
         start = start + self.lineNumberLength + 1
     end
     if self.scroll.x < #self.lines[linenum] then
-        self._term.setCursor(start, linenum - self.scroll.y)
-        self._term.write(self.lines[linenum]:sub(self.scroll.x))
+        self.term.setCursor(start, linenum - self.scroll.y)
+        self.term.write(self.lines[linenum]:sub(self.scroll.x))
     end
 end
 
@@ -81,9 +81,9 @@ end
 
 function Buffer:setStatus(message)
     print(self.term)
-    self._term.setCursor(1, self.size.h)
-    self._term.clearLine()
-    self._term.write(message)
+    self.term.setCursor(1, self.size.h)
+    self.term.clearLine()
+    self.term.write(message)
 end
 
 function Buffer:moveCursor(x, y)
@@ -104,7 +104,7 @@ end
 
 function Buffer:updateCursor()
     local c = self.cursor
-    self._term.setCursor(c.x, c.y)
+    self.term.setCursor(c.x, c.y)
 end
 
 Buffer.setTempStatus = Buffer.setStatus
