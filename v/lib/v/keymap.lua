@@ -1,16 +1,16 @@
 local class = require('oop-system').class
 local keyboard = require('keyboard')
+local unicode = require('unicode')
 
 local Keymap = class('Keymap')
 
 function Keymap:init(v)
     self.v = v
-    self.mode = control
+    self.mode = "control"
 end
 
 function Keymap:registerEvents()
     self.v.listenEvent("key_down", function(event, addr, char, code)
-        self.v.buf.setTempStatus("Key: "..char..":"..code)
         if self.enabled then
             self:onKey(char, code)
         end
@@ -18,7 +18,6 @@ function Keymap:registerEvents()
 end
 
 function Keymap:onKey(char, key)
-    self.v.buf.setTempStatus("Key: "..char..":"..key)
     if self.mode == "text" then
         if key == keyboard.keys.left then
             self.v.buf:moveCursor(-1, 0)

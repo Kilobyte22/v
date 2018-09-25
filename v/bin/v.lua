@@ -35,7 +35,7 @@ do
 end
 
 if fs.exists(v.HOME..'/.vrc') then
-    f = io.open(v.HOME..'/.vrc')
+    local f = io.open(v.HOME..'/.vrc')
     local code = f:read('*a')
     f:close()
     v.vscript:eval(code)
@@ -144,6 +144,10 @@ function v.listenEvent(name, listener)
     return false
 end
 
+local function runLisp(code)
+    return v.vscript:eval(code)
+end
+
 function v.doCommand()
     local line = v.buf:readLine()
     local s, m = pcall(runLisp, '('..line..')')
@@ -153,10 +157,6 @@ function v.doCommand()
         end
         v.buf:setStatus(m, 'error')
     end
-end
-
-local function runLisp(code)
-    return v.vscript:eval(code)
 end
 
 if #ARGV > 0 then

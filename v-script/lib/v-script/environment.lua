@@ -3,6 +3,7 @@ local class = require('oop-system').class
 local Namespace = require('v-script/namespace')
 local stdlib = require('v-script/stdlib')
 local lexer = require('v-script/lexer')
+local os = require('os')
 local parser = require('v-script/parser')
 local Scope = require('v-script/scope')
 local String = require('v-script/values/string')
