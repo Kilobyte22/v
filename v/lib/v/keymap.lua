@@ -24,6 +24,7 @@ function Keymap:onKey(char, key)
         elseif key == keyboard.keys.right then
             self.v.buf:moveCursor(-1, 0)
         elseif key == keyboard.keys.f1 then
+            self.v.buf:setTempStatus('')
             self.mode = 'control'
             self.v.buf.mode = nil
         end
@@ -41,6 +42,7 @@ function Keymap:onKey(char, key)
                     self.v.term.setCursorBlink(true)
                     self.enabled = true
                 elseif c == 'i' then
+                    self.v.buf:setTempStatus("-- INSERT --")
                     self.mode = 'text'
                     self.v.buf.mode = 'insert'
                 end
