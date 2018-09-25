@@ -80,7 +80,6 @@ function Buffer:readLine()
 end
 
 function Buffer:setStatus(message)
-    print(self.term)
     self.term.setCursor(1, self.size.h)
     self.term.clearLine()
     self.term.write(message)
@@ -98,7 +97,7 @@ function Buffer:verifyCursor()
     c.x = math.max(c.x, 1)
     c.y = math.max(c.y, 1)
     c.y = math.max(c.y, #(self.lines))
-    c.x = math.min(c.x, #(self.lines[c.y + self.scroll.y]) + ((mode == 'insert') and 1 or 0))
+    c.x = math.min(c.x, #(self.lines[c.y + self.scroll.y]) + ((self.mode == 'insert') and 1 or 0))
     self:updateCursor()
 end
 
