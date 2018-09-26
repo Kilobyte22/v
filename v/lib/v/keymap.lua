@@ -19,6 +19,8 @@ function Keymap:onKey(char, key)
             self.v.buf:setTempStatus('')
             self.mode = 'control'
             self.v.buf.mode = nil
+        elseif not keyboard.isControl(char) then
+            self.v.buf:insert(unicode.char(char))
         end
     elseif self.mode == "control" then
         if key == keyboard.keys.left then

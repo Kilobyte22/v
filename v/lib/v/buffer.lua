@@ -1,6 +1,7 @@
 local class = require('oop-system').class
 
 local Buffer = class('Buffer')
+local unicode = require('unicode')
 local math = require('math')
 
 local function toLines(str)
@@ -63,6 +64,7 @@ function Buffer:drawLine(linenum)
     end
     if self.scroll.x < #self.lines[linenum] then
         self.term.setCursor(start, linenum - self.scroll.y)
+        self.term.write("\27[K") -- clear line from cursor right
         self.term.write(self.lines[linenum]:sub(self.scroll.x))
     end
 end
@@ -105,7 +107,22 @@ end
 
 function Buffer:updateCursor()
     local c = self.cursor
+    -- TODO: update self.scroll
     self.term.setCursor(c.x, c.y)
+end
+
+-- Insert a string at the current position of cursor. 'str' is a
+-- sequence of printable characters.
+function Buffer:insert(str)
+    local c = self.cursor
+    local linenum = c.y + self.scroll.y
+    local line = self.lines[linenum]
+    local index = c.x + self.scroll.x
+    self.lines[linenum] =
+        unicode.sub(line, 1, index - 1)..str..unicode.sub(line, index)
+    self.modified = true
+    self:drawLine(linenum)
+    self:moveCursor(unicode.len(str), 0)
 end
 
 Buffer.setTempStatus = Buffer.setStatus
