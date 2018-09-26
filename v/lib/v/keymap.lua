@@ -9,14 +9,6 @@ function Keymap:init(v)
     self.mode = "control"
 end
 
-function Keymap:registerEvents()
-    self.v.listenEvent("key_down", function(event, addr, char, code)
-        if self.enabled then
-            self:onKey(char, code)
-        end
-    end)
-end
-
 function Keymap:onKey(char, key)
     if self.mode == "text" then
         if key == keyboard.keys.left then

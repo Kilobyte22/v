@@ -166,14 +166,16 @@ if #ARGV > 0 then
 end
 
 v.buf:update()
-v.keymap:registerEvents()
 v.keymap.enabled = true
 v.keymap.mode = 'control'
 term.setCursorBlink(true)
 
-while true do
-    if exit then
-        os.exit(exit)
+while not exit do
+    local ev = table.pack(term.pull())
+    if ev[1] == "key_down" then
+        if ev[2] == term.keyboard() then
+            v.keymap:onKey(ev[3], ev[4])
+        end
     end
-    term.pull()
 end
+os.exit(exit)
