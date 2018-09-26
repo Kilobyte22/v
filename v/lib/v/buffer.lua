@@ -51,7 +51,7 @@ function Buffer:update()
         end
         self:drawLine(i + self.scroll.y)
     end
-
+    self:updateCursor()
 end
 
 function Buffer:drawLine(linenum)
@@ -76,6 +76,7 @@ function Buffer:readLine()
     local line = self.term.read(nil, false)
     self.mode = nil
     self.term.setCursorBlink(false)
+    self:updateCursor()
     return line
 end
 
@@ -83,6 +84,7 @@ function Buffer:setStatus(message)
     self.term.setCursor(1, self.size.h)
     self.term.clearLine()
     self.term.write(message)
+    self:updateCursor()
 end
 
 function Buffer:moveCursor(x, y)
