@@ -21,11 +21,21 @@ function Keymap:onKey(char, key)
         elseif key == keyboard.keys.down then
             self.v.buf:moveCursor(0, 1)
         elseif key == keyboard.keys.f1 then
-            self.v.buf:setTempStatus('')
             self.mode = 'control'
             self.v.buf.mode = nil
+            self.v.buf:verifyCursor()
+            self.v.buf:setTempStatus('')
         elseif key == keyboard.keys.enter then
             self.v.buf:newline()
+        elseif key == keyboard.keys.tab then
+            -- TODO: Implement proper tab stops
+            self.v.buf:insert("    ")
+        elseif key == keyboard.keys.back then
+            if self.v.buf:back() then
+                self.v.buf:delete()
+            end
+        elseif key == keyboard.keys.delete then
+            self.v.buf:delete()
         elseif not keyboard.isControl(char) then
             self.v.buf:insert(unicode.char(char))
         end
@@ -38,6 +48,8 @@ function Keymap:onKey(char, key)
             self.v.buf:moveCursor(0, -1)
         elseif key == keyboard.keys.down then
             self.v.buf:moveCursor(0, 1)
+        elseif key == keyboard.keys.back then
+            self.v.buf:back()
         else
             if not keyboard.isControl(char) then
                 local c = unicode.char(char)

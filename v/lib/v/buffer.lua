@@ -104,6 +104,7 @@ end
 
 function Buffer:verifyCursor()
     local c = self.cursor
+    -- TODO: update self.scroll
     c.x = math.max(c.x, 1)
     c.y = math.max(c.y, 1)
     c.y = math.min(c.y, #(self.lines))
@@ -113,8 +114,22 @@ end
 
 function Buffer:updateCursor()
     local c = self.cursor
-    -- TODO: update self.scroll
     self.term.setCursor(c.x, c.y)
+end
+
+-- Move the cursor backward. Return true if the cursor actually moved.
+function Buffer:back()
+    local c = self.cursor
+    if c.x > 1 then
+        self:moveCursor(-1, 0)
+        return true
+    elseif c.y + self.scroll.y > 1 then
+        local line = self.lines[c.y + self.scroll.y - 1]
+        self:setCursor(#line + 1, c.y - 1)
+        return true
+    else
+        return false
+    end
 end
 
 -- Insert a string at the current position of cursor. 'str' is a
@@ -129,6 +144,29 @@ function Buffer:insert(str)
     self.modified = true
     self:update(c.y, c.y)
     self:moveCursor(unicode.len(str), 0)
+end
+
+-- Delete a character at the cursor.
+function Buffer:delete()
+    local c = self.cursor
+    local linenum = c.y + self.scroll.y
+    local line = self.lines[linenum]
+    local index = c.x + self.scroll.x
+    if index == #line + 1 then
+        -- The cursor is at the end of line. Concatenate it with the
+        -- next line if possible.
+        if linenum < #self.lines then
+            local nextLine = table.remove(self.lines, linenum + 1)
+            self.lines[linenum] = line..nextLine
+            self.modified = true
+            self:update(c.y)
+        end
+    else
+        self.lines[linenum] =
+            unicode.sub(line, 1, index - 1)..unicode.sub(line, index + 1)
+        self.modified = true
+        self:update(c.y, c.y)
+    end
 end
 
 -- Break a line at the current position of cursor.
