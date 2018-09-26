@@ -175,6 +175,5 @@ while true do
     if exit then
         os.exit(exit)
     end
-    event.pull()
-
+    term.pull()
 end
