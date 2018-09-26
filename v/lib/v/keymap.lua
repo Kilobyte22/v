@@ -22,7 +22,7 @@ function Keymap:onKey(char, key)
         if key == keyboard.keys.left then
             self.v.buf:moveCursor(-1, 0)
         elseif key == keyboard.keys.right then
-            self.v.buf:moveCursor(-1, 0)
+            self.v.buf:moveCursor(1, 0)
         elseif key == keyboard.keys.f1 then
             self.v.buf:setTempStatus('')
             self.mode = 'control'
@@ -32,7 +32,7 @@ function Keymap:onKey(char, key)
         if key == keyboard.keys.left then
             self.v.buf:moveCursor(-1, 0)
         elseif key == keyboard.keys.right then
-            self.v.buf:moveCursor(-1, 0)
+            self.v.buf:moveCursor(1, 0)
         else
             if not keyboard.isControl(char) then
                 local c = unicode.char(char)

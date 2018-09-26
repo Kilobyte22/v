@@ -15,7 +15,7 @@ function Buffer:init(text, term, size, gpu)
     self.lines = lines
     self.term = term
     self.lineNumbers = false
-    self.scroll = {x = 0, y = 0 }
+    self.scroll = {x = 0, y = 0}
     self.cursor = {x = 1, y = 1}
     self.size = size
     self.mode = nil
@@ -96,7 +96,7 @@ function Buffer:verifyCursor()
     local c = self.cursor
     c.x = math.max(c.x, 1)
     c.y = math.max(c.y, 1)
-    c.y = math.max(c.y, #(self.lines))
+    c.y = math.min(c.y, #(self.lines))
     c.x = math.min(c.x, #(self.lines[c.y + self.scroll.y]) + ((self.mode == 'insert') and 1 or 0))
     self:updateCursor()
 end
