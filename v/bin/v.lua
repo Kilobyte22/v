@@ -17,6 +17,7 @@ local io = require('io')
 local fs = require('filesystem')
 local Buffer = require('v/buffer')
 local event = require('event')
+local shell = require('shell')
 local exit
 local ARGV = table.pack(...)
 
@@ -79,6 +80,7 @@ function v.checkPermission(file, mode)
 end
 
 function v.loadFile(file, readonly)
+    file = shell.resolve(file)
     readonly = readonly or not v.checkPermission(file, "w")
     local exists = fs.exists(file)
     local data = ""
