@@ -55,7 +55,7 @@ end
 function v.loadText(data, file, readonly)
     local w, h = component.gpu.getResolution()
     v.buf = Buffer.new(data, term, {w = w, h = h}, component.gpu)
-    v.writable = not readonly
+    v.buf.writable = not readonly
     v.file = file
 end
 v.loadText("")
@@ -77,6 +77,7 @@ function v.checkPermission(file, mode)
         end
         if not ret then return false end
     end
+    return ret
 end
 
 function v.loadFile(file, readonly)
@@ -104,12 +105,13 @@ function v.save(file)
     end
     if v.buf.modified then
         if file then
+            file = shell.resolve(file)
             if v.checkPermission(file, "w") then
                 local f, err = io.open(file, "w")
                 if not f then
                     return false, "Cannot write "..file..": "..err
                 end
-                f:write(v.buf.getData())
+                f:write(v.buf:getData())
                 f:close()
                 v.file = file
                 v.buf.modified = false
@@ -121,10 +123,11 @@ function v.save(file)
             if not v.file then
                 return false, "Please specify a file name"
             end
-            v.save(v.file)
+            return v.save(v.file)
         end
     else
         if file then
+            file = shell.resolve(file)
             if v.checkPermission(file, "w") then
                 fs.copy(v.file, file)
                 v.file = file
