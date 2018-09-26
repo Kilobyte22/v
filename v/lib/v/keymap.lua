@@ -10,11 +10,16 @@ function Keymap:init(v)
 end
 
 function Keymap:onKey(char, key)
+    -- TODO: Make the keymap configurable
     if self.mode == "text" then
         if key == keyboard.keys.left then
             self.v.buf:moveCursor(-1, 0)
         elseif key == keyboard.keys.right then
             self.v.buf:moveCursor(1, 0)
+        elseif key == keyboard.keys.up then
+            self.v.buf:moveCursor(0, -1)
+        elseif key == keyboard.keys.down then
+            self.v.buf:moveCursor(0, 1)
         elseif key == keyboard.keys.f1 then
             self.v.buf:setTempStatus('')
             self.mode = 'control'
@@ -29,6 +34,10 @@ function Keymap:onKey(char, key)
             self.v.buf:moveCursor(-1, 0)
         elseif key == keyboard.keys.right then
             self.v.buf:moveCursor(1, 0)
+        elseif key == keyboard.keys.up then
+            self.v.buf:moveCursor(0, -1)
+        elseif key == keyboard.keys.down then
+            self.v.buf:moveCursor(0, 1)
         else
             if not keyboard.isControl(char) then
                 local c = unicode.char(char)
