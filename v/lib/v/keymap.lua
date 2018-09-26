@@ -19,6 +19,8 @@ function Keymap:onKey(char, key)
             self.v.buf:setTempStatus('')
             self.mode = 'control'
             self.v.buf.mode = nil
+        elseif key == keyboard.keys.enter then
+            self.v.buf:newline()
         elseif not keyboard.isControl(char) then
             self.v.buf:insert(unicode.char(char))
         end

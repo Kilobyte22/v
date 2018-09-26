@@ -96,6 +96,12 @@ function Buffer:moveCursor(x, y)
     self:verifyCursor()
 end
 
+function Buffer:setCursor(x, y)
+    self.cursor.x = x
+    self.cursor.y = y
+    self:verifyCursor()
+end
+
 function Buffer:verifyCursor()
     local c = self.cursor
     c.x = math.max(c.x, 1)
@@ -121,8 +127,29 @@ function Buffer:insert(str)
     self.lines[linenum] =
         unicode.sub(line, 1, index - 1)..str..unicode.sub(line, index)
     self.modified = true
-    self:drawLine(linenum)
+    self:update(c.y, c.y)
     self:moveCursor(unicode.len(str), 0)
+end
+
+-- Break a line at the current position of cursor.
+function Buffer:newline()
+    local c = self.cursor
+    local linenum = c.y + self.scroll.y
+    local line = self.lines[linenum]
+    local index = c.x + self.scroll.x
+    self.lines[linenum] = unicode.sub(line, 1, index - 1)
+    table.insert(self.lines, linenum + 1, unicode.sub(line, index))
+    self.modified = true
+    if self.lineNumbers then
+        -- Inserting a line may invalidate the calculated width of
+        -- line numbers. We need to do a full redraw.
+        self:update()
+    else
+        -- Only a partial redraw starting from the cursor position
+        -- should suffice.
+        self:update(c.y)
+    end
+    self:setCursor(1, c.y + 1)
 end
 
 Buffer.setTempStatus = Buffer.setStatus
