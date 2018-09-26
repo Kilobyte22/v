@@ -31,25 +31,25 @@ function Buffer:getData()
     return table.concat(self.lines, "\n")
 end
 
-function Buffer:update()
-    self.term.clear()
+-- The pair of 'startY' and 'endY' is the range of screen to be
+-- updated, defaulted to the entire screen.
+function Buffer:update(startY, endY)
+    startY = startY or 1
+    endY   = endY   or self.size.h - 1
     self.lineNumberLength = 0
     if self.lineNumbers then
-        for i = 1, self.size.h - 1 do
-            if i + self.scroll.y > #self.lines then
-                break
-            end
+        for i = startY, endY do
             self.term.setCursor(1, i)
-            local string = tostring(i + self.scroll.y)
-            self.lineNumberLength = #string
-            self.term.write(string, false)
+            self.term.clearLine()
+            if i + self.scroll.y <= #self.lines then
+                local string = tostring(i + self.scroll.y)
+                self.lineNumberLength = #string
+                self.term.write(string, false)
+            end
         end
     end
 
-    for i = 1, self.size.h - 1 do
-        if i + self.scroll.y > #self.lines then
-            break
-        end
+    for i = startY, endY do
         self:drawLine(i + self.scroll.y)
     end
     self:updateCursor()
@@ -62,9 +62,9 @@ function Buffer:drawLine(linenum)
         w = w - (self.lineNumberLength + 1)
         start = start + self.lineNumberLength + 1
     end
-    if self.scroll.x < #self.lines[linenum] then
-        self.term.setCursor(start, linenum - self.scroll.y)
-        self.term.write("\27[K") -- clear line from cursor right
+    self.term.setCursor(start, linenum - self.scroll.y)
+    self.term.write("\27[K") -- clear line from cursor right
+    if linenum <= #self.lines then
         self.term.write(self.lines[linenum]:sub(self.scroll.x))
     end
 end
