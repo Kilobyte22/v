@@ -65,7 +65,7 @@ function Buffer:drawLine(linenum)
     self.term.setCursor(start, linenum - self.scroll.y)
     self.term.write("\27[K") -- clear line from cursor right
     if linenum <= #self.lines then
-        self.term.write(self.lines[linenum]:sub(self.scroll.x))
+        self.term.write(self.lines[linenum]:sub(self.scroll.x + 1))
     end
 end
 
@@ -104,12 +104,38 @@ end
 
 function Buffer:verifyCursor()
     local c = self.cursor
-    -- TODO: update self.scroll
-    c.x = math.max(c.x, 1)
+    local s = self.scroll
+    local savedS = {x = s.x, y = s.y}
+    if c.x < 1 then
+        s.x = math.max(0, s.x - (1 - c.x))
+        c.x = 1
+    end
+    if c.y < 1 then
+        s.y = math.max(0, s.y - (1 - c.y))
+        c.y = 1
+    end
+    c.y = math.min(c.y, #self.lines - s.y)
     c.y = math.max(c.y, 1)
-    c.y = math.min(c.y, #(self.lines))
-    c.x = math.min(c.x, #(self.lines[c.y + self.scroll.y]) + ((self.mode == 'insert') and 1 or 0))
-    self:updateCursor()
+    if c.y > self.size.h - 1 then
+        s.y = s.y + (c.y - (self.size.h - 1))
+        c.y = self.size.h - 1
+    end
+    c.x = math.min(
+        c.x,
+        #self.lines[c.y + s.y] - s.x +
+            ((self.mode == 'insert') and 1 or 0))
+    c.x = math.max(c.x, 1)
+    if c.x > self.size.w then
+        s.x = s.x + (c.x - self.size.w)
+        c.x = self.size.w
+    end
+
+    if savedS.x == s.x and savedS.y == s.y then
+        self:updateCursor()
+    else
+        -- Scroll changed. Need to redraw everything.
+        self:update()
+    end
 end
 
 function Buffer:updateCursor()
