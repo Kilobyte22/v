@@ -17,6 +17,7 @@ local io = require('io')
 local fs = require('filesystem')
 local Buffer = require('v/buffer')
 local event = require('event')
+local shell = require('shell')
 local exit
 local ARGV = table.pack(...)
 
@@ -54,7 +55,7 @@ end
 function v.loadText(data, file, readonly)
     local w, h = component.gpu.getResolution()
     v.buf = Buffer.new(data, term, {w = w, h = h}, component.gpu)
-    v.writable = not readonly
+    v.buf.writable = not readonly
     v.file = file
 end
 v.loadText("")
@@ -76,9 +77,11 @@ function v.checkPermission(file, mode)
         end
         if not ret then return false end
     end
+    return ret
 end
 
 function v.loadFile(file, readonly)
+    file = shell.resolve(file)
     readonly = readonly or not v.checkPermission(file, "w")
     local exists = fs.exists(file)
     local data = ""
@@ -102,12 +105,13 @@ function v.save(file)
     end
     if v.buf.modified then
         if file then
+            file = shell.resolve(file)
             if v.checkPermission(file, "w") then
                 local f, err = io.open(file, "w")
                 if not f then
                     return false, "Cannot write "..file..": "..err
                 end
-                f:write(v.buf.getData())
+                f:write(v.buf:getData())
                 f:close()
                 v.file = file
                 v.buf.modified = false
@@ -119,10 +123,11 @@ function v.save(file)
             if not v.file then
                 return false, "Please specify a file name"
             end
-            v.save(v.file)
+            return v.save(v.file)
         end
     else
         if file then
+            file = shell.resolve(file)
             if v.checkPermission(file, "w") then
                 fs.copy(v.file, file)
                 v.file = file
@@ -164,15 +169,16 @@ if #ARGV > 0 then
 end
 
 v.buf:update()
-v.keymap:registerEvents()
 v.keymap.enabled = true
 v.keymap.mode = 'control'
 term.setCursorBlink(true)
 
-while true do
-    if exit then
-        os.exit(exit)
+while not exit do
+    local ev = table.pack(term.pull())
+    if ev[1] == "key_down" then
+        if ev[2] == term.keyboard() then
+            v.keymap:onKey(ev[3], ev[4])
+        end
     end
-    event.pull()
-
 end
+os.exit(exit)

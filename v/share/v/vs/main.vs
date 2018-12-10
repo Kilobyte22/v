@@ -26,4 +26,22 @@
 
     (alias q quit)
     (alias q! quit!)
+
+    (defun write (file)
+        (if :file
+            { local ok, msg = v.save(scope.lvars.file:toString())
+              if not ok then
+                  v.buf:setTempStatus(msg)
+              end }
+            { local ok, msg = v.save()
+              if not ok then
+                  v.buf:setTempStatus(msg)
+              end }))
+
+    (alias w write)
+
+    (defun wq (file)
+        (block
+            (write :file)
+            (quit)))
 )
